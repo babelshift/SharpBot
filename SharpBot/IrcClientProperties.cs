@@ -6,8 +6,12 @@ namespace SharpBot
 {
     public class IrcClientProperties
     {
-        public string BotUsername { get { return ""; } } // fill this in with your info
-        public string ChannelName { get { return ""; } } // fill this in with your info
-        public string OAuthToken { get { return ""; } } // fill this in with your info
+        public string BotUsername { get; set; }
+        public string ChannelName { get; set; }
+        public string TwitchOAuthToken { get; set; }
+        public string SteamWebApiKey { get; set; }
+        public string SteamWebApiBaseUrl { get; set; }
+        public string TwitchIrcUrl { get; set; }
+        public int TwitchIrcPort { get; set; }
     }
 }
