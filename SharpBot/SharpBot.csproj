@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SteamWebAPI2" Version="4.0.15" />
+    <PackageReference Include="SteamWebAPI2" Version="4.0.16" />
   </ItemGroup>
 
   <ItemGroup>
