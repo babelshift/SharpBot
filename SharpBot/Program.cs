@@ -24,7 +24,8 @@ namespace SharpBot
                 var pinger = new Pinger(client);
                 pinger.Start();
 
-                var processor = new CommandProcessor(props.SteamWebApiKey, client);
+                var commandProcessor = new CommandProcessor(props.SteamWebApiKey, client);
+                await commandProcessor.InitializeAsync();
 
                 // Listen for commands and process them forever
                 while (true)
@@ -36,7 +37,7 @@ namespace SharpBot
                     if (message.Contains("PRIVMSG"))
                     {
                         var parsedMessage = ParseMessage(message);
-                        await processor.ProcessAsync(parsedMessage);
+                        await commandProcessor.ProcessAsync(parsedMessage);
                     }
                     else if(message.StartsWith("PING"))
                     {

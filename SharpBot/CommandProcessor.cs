@@ -13,6 +13,7 @@ namespace SharpBot
     {
         private readonly IrcClient client;
         private readonly string steamWebApiKey;
+        private readonly Dictionary<string, IProcessor> processors = new Dictionary<string, IProcessor>();
 
         public CommandProcessor(string steamWebApiKey, IrcClient client)
         {
@@ -20,21 +21,30 @@ namespace SharpBot
             this.client = client;
         }
 
+        public async Task InitializeAsync()
+        {
+            processors.Add("!help", new HelpCommandProcessor());
+            var steamCommandProcessor = new SteamCommandProcessor(steamWebApiKey);
+            await steamCommandProcessor.InitializeAsync();
+            processors.Add("!steam", steamCommandProcessor);
+        }
+
         public async Task ProcessAsync(string message)
         {
-            message = message.Trim().ToLower();
-            var mainCommand = message.Split(' ')[0];
-
-            Dictionary<string, IProcessor> processors = new Dictionary<string, IProcessor>();
-            processors.Add("!help", new HelpCommandProcessor());
-            processors.Add("!steam", new SteamCommandProcessor(steamWebApiKey));
-
-            if (processors.ContainsKey(mainCommand))
+            try
             {
-                var processor = processors[mainCommand];
-                var response = await processor.ProcessCommandAsync(message);
-                client.SendChatMessage(response);
+                message = message.Trim().ToLower();
+                var mainCommand = message.Split(' ')[0];
+
+                if (processors.ContainsKey(mainCommand))
+                {
+                    var processor = processors[mainCommand];
+                    var response = await processor.ProcessCommandAsync(message);
+                    client.SendChatMessage(response);
+                }
             }
+            // we should do nothing if any exception occurs because we can't recover with bad input
+            catch { }
         }
     }
 }
