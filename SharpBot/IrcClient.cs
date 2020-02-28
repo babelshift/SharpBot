@@ -16,12 +16,12 @@ namespace SharpBot
         private StreamReader inputStream;
         private StreamWriter outputStream;
 
-        public IrcClient(string ip, int port, string userName, string password, string channel)
+        public IrcClient(string hostname, int port, string userName, string password, string channel)
         {
             this.userName = userName;
             this.channel = channel;
 
-            tcpClient = new TcpClient(ip, port);
+            tcpClient = new TcpClient(hostname, port);
             inputStream = new StreamReader(tcpClient.GetStream());
             outputStream = new StreamWriter(tcpClient.GetStream());
 

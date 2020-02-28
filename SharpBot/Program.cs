@@ -16,28 +16,32 @@ namespace SharpBot
 
         private static async Task Main(string[] args)
         {
-            // Lookup app config
             var config = await File.ReadAllTextAsync("appsettings.json");
             props = JsonConvert.DeserializeObject<IrcClientProperties>(config);
 
-            // Bootstrap the IRC client
             using (var client = new IrcClient(props.TwitchIrcUrl, props.TwitchIrcPort, props.BotUsername, props.TwitchOAuthToken, props.ChannelName))
             {
-                // this will send pings, but do we also need to reply to pings from twitch per documentation?
                 var pinger = new Pinger(client);
                 pinger.Start();
 
                 var processor = new CommandProcessor(props.SteamWebApiKey, client);
 
-                // Listen for commands forever
+                // Listen for commands and process them forever
                 while (true)
                 {
-                    Console.WriteLine("Reading message");
+                    Console.WriteLine("Waiting for next message from chat server");
                     var message = client.ReadMessage();
-                    Console.WriteLine($"Message: {message}");
+                    Console.WriteLine($"Received message: {message}");
 
-                    var parsedMessage = ParseMessage(message);
-                    await processor.ProcessAsync(parsedMessage);
+                    if (message.Contains("PRIVMSG"))
+                    {
+                        var parsedMessage = ParseMessage(message);
+                        await processor.ProcessAsync(parsedMessage);
+                    }
+                    else if(message.StartsWith("PING"))
+                    {
+                        client.SendIrcMessage("PONG :tmi.twitch.tv");
+                    }
                 }
             }
         }
