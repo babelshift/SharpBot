@@ -4,11 +4,15 @@ using System.Net.Sockets;
 
 namespace SharpBotService.TwitchClient
 {
-    public class IrcClient : IDisposable
+    public class IrcClient : IIrcClient, IDisposable
     {
         private bool disposed = false;
-        private string userName;
-        private string channel;
+
+        private readonly string channel;
+        private readonly int port;
+        private readonly string hostname;
+        private readonly string userName;
+        private readonly string password;
 
         private TcpClient tcpClient;
         private StreamReader inputStream;
@@ -16,9 +20,15 @@ namespace SharpBotService.TwitchClient
 
         public IrcClient(string hostname, int port, string userName, string password, string channel)
         {
+            this.hostname = hostname;
+            this.port = port;
+            this.password = password;
             this.userName = userName;
             this.channel = channel;
+        }
 
+        public void Connect()
+        {
             tcpClient = new TcpClient(hostname, port);
             inputStream = new StreamReader(tcpClient.GetStream());
             outputStream = new StreamWriter(tcpClient.GetStream());
@@ -28,6 +38,13 @@ namespace SharpBotService.TwitchClient
             outputStream.WriteLine($"USER {userName} 8 * :{userName}");
             outputStream.WriteLine($"JOIN #{channel}");
             outputStream.Flush();
+        }
+
+        public void Disconnect()
+        {
+            tcpClient.Close();
+            inputStream.Close();
+            outputStream.Close();
         }
 
         public void SendIrcMessage(string message)
