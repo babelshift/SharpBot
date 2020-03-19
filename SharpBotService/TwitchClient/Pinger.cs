@@ -1,16 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 
 namespace SharpBotService.TwitchClient
 {
-    public class Pinger
+    public class Pinger : IPinger
     {
-        private IrcClient client;
+        private IIrcClient client;
         private Thread sender;
 
-        public Pinger(IrcClient client)
+        public Pinger(IIrcClient client)
         {
             this.client = client;
             sender = new Thread(new ThreadStart(Run));
