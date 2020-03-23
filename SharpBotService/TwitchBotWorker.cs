@@ -1,6 +1,11 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using SharpBotService.FunctionConsumer;
 using SharpBotService.TwitchClient;
+using System.Net.Http;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,12 +16,17 @@ namespace SharpBotService
         private readonly ILogger<TwitchBotWorker> _logger;
         private readonly IIrcClient _ircClient;
         private readonly IPinger _pinger;
+        private readonly IAzureFunctionClient _azureFunctionClient;
 
-        public TwitchBotWorker(ILogger<TwitchBotWorker> logger, IIrcClient ircClient, IPinger pinger)
+        public TwitchBotWorker(ILogger<TwitchBotWorker> logger, 
+            IIrcClient ircClient, 
+            IPinger pinger,
+            IAzureFunctionClient azureFunctionClient)
         {
             _logger = logger;
             _ircClient = ircClient;
             _pinger = pinger;
+            _azureFunctionClient = azureFunctionClient;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -35,13 +45,9 @@ namespace SharpBotService
 
                     if (message.Contains("PRIVMSG"))
                     {
-                        if (message.Contains("hello"))
-                        {
-                            _ircClient.SendChatMessage("Hello World");
-                        }
-                        // TODO: Hook up to call Azure Function
-                        //var parsedMessage = ParseMessage(message);
-                        //await commandProcessor.ProcessAsync(parsedMessage);
+                        var parsedMessage = ParseMessage(message);
+                        var response = await _azureFunctionClient.ProcessCommandAsync(parsedMessage);
+                        _ircClient.SendChatMessage(response);
                     }
                     else if (message.StartsWith("PING"))
                     {
@@ -53,6 +59,17 @@ namespace SharpBotService
             {
                 _ircClient.Disconnect();
             }
+        }
+
+        private string ParseMessage(string message)
+        {
+            string[] splitMessage = message.Split(':');
+            if (splitMessage.Length == 3)
+            {
+                return splitMessage[2];
+            }
+
+            return string.Empty;
         }
     }
 }
