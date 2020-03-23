@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharpBot", "SharpBot\SharpB
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharpBotService", "SharpBotService\SharpBotService.csproj", "{F1364396-1D43-4821-986E-46EB7BC36D92}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BotCommandFunctions", "SteamCommandProcessor\BotCommandFunctions.csproj", "{EB955429-F28A-41EA-B0B0-AC895B037E8A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BotCommandFunctions", "SteamCommandProcessor\BotCommandFunctions.csproj", "{FBC53B9C-82DD-4BDF-9FFD-E5E17A6834F5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +23,10 @@ Global
 		{F1364396-1D43-4821-986E-46EB7BC36D92}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F1364396-1D43-4821-986E-46EB7BC36D92}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F1364396-1D43-4821-986E-46EB7BC36D92}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EB955429-F28A-41EA-B0B0-AC895B037E8A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EB955429-F28A-41EA-B0B0-AC895B037E8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EB955429-F28A-41EA-B0B0-AC895B037E8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EB955429-F28A-41EA-B0B0-AC895B037E8A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FBC53B9C-82DD-4BDF-9FFD-E5E17A6834F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBC53B9C-82DD-4BDF-9FFD-E5E17A6834F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBC53B9C-82DD-4BDF-9FFD-E5E17A6834F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBC53B9C-82DD-4BDF-9FFD-E5E17A6834F5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

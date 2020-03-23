@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace BotCommandFunctions
 {
+    /// <summary>
+    /// Azure Durable Entity to store Steam App List for resiliency and re-use
+    /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
     public class SteamAppList : ISteamAppList
     {

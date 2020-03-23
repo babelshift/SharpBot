@@ -29,6 +29,10 @@ namespace BotCommandFunctions
             steamNewsInterface = webInterfaceFactory.CreateSteamWebInterface<SteamNews>(httpClient);
         }
 
+        /// <summary>
+        /// Queries the Steam Web API for the Steam App List. Useful when we call other Steam Web API endpoints that require an App ID.
+        /// </summary>
+        /// <returns></returns>
         public async Task<Dictionary<uint, string>> GetSteamAppListAsync()
         {
             var steamAppsInterface = webInterfaceFactory.CreateSteamWebInterface<SteamApps>(httpClient);
