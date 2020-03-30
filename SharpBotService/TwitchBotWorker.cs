@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SharpBotService.FunctionConsumer;
 using SharpBotService.TwitchClient;
+using System;
 using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -18,8 +19,8 @@ namespace SharpBotService
         private readonly IPinger _pinger;
         private readonly IAzureFunctionClient _azureFunctionClient;
 
-        public TwitchBotWorker(ILogger<TwitchBotWorker> logger, 
-            IIrcClient ircClient, 
+        public TwitchBotWorker(ILogger<TwitchBotWorker> logger,
+            IIrcClient ircClient,
             IPinger pinger,
             IAzureFunctionClient azureFunctionClient)
         {
@@ -35,13 +36,22 @@ namespace SharpBotService
             {
                 _ircClient.Connect();
                 _pinger.Start();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "The following exception occurred as a catch-all during ExecuteAsync.");
+            }
+            finally
+            {
+                _ircClient.Disconnect();
+            }
 
-                // Listen for commands and process them forever
-                while (!stoppingToken.IsCancellationRequested)
+            // Listen for commands and process them forever
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                try
                 {
-                    _logger.LogInformation("Waiting for next message from chat server");
                     var message = _ircClient.ReadMessage();
-                    _logger.LogInformation($"Received message: {message}");
 
                     if (message.Contains("PRIVMSG"))
                     {
@@ -51,13 +61,19 @@ namespace SharpBotService
                     }
                     else if (message.StartsWith("PING"))
                     {
+                        _logger.LogInformation("Received PING");
                         _ircClient.SendIrcMessage("PONG :tmi.twitch.tv");
+                        _logger.LogInformation("Sent PONG");
+                    }
+                    else
+                    {
+                        _logger.LogInformation($"Received message: {message}");
                     }
                 }
-            }
-            finally
-            {
-                _ircClient.Disconnect();
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "The following exception occurred as a catch-all during command processing.");
+                }
             }
         }
 

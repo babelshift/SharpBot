@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.IO;
 using System.Net.Sockets;
 
@@ -6,6 +7,8 @@ namespace SharpBotService.TwitchClient
 {
     public class IrcClient : IIrcClient, IDisposable
     {
+        private readonly ILogger<IrcClient> logger;
+
         private bool disposed = false;
 
         private readonly string channel;
@@ -18,8 +21,9 @@ namespace SharpBotService.TwitchClient
         private StreamReader inputStream;
         private StreamWriter outputStream;
 
-        public IrcClient(string hostname, int port, string userName, string password, string channel)
+        public IrcClient(string hostname, int port, string userName, string password, string channel, ILogger<IrcClient> logger)
         {
+            this.logger = logger;
             this.hostname = hostname;
             this.port = port;
             this.password = password;
@@ -38,6 +42,8 @@ namespace SharpBotService.TwitchClient
             outputStream.WriteLine($"USER {userName} 8 * :{userName}");
             outputStream.WriteLine($"JOIN #{channel}");
             outputStream.Flush();
+
+            logger.LogInformation("Connected to chat server");
         }
 
         public void Disconnect()

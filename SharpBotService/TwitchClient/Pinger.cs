@@ -1,15 +1,18 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Threading;
 
 namespace SharpBotService.TwitchClient
 {
     public class Pinger : IPinger
     {
-        private IIrcClient client;
-        private Thread sender;
+        private readonly ILogger<Pinger> logger;
+        private readonly IIrcClient client;
+        private readonly Thread sender;
 
-        public Pinger(IIrcClient client)
+        public Pinger(IIrcClient client, ILogger<Pinger> logger)
         {
+            this.logger = logger;
             this.client = client;
             sender = new Thread(new ThreadStart(Run));
         }
@@ -18,16 +21,17 @@ namespace SharpBotService.TwitchClient
         {
             sender.IsBackground = true;
             sender.Start();
+            logger.LogInformation("Started pinger process");
         }
 
         private void Run()
         {
             while (true)
             {
-                Console.WriteLine("Sending PING");
+                logger.LogInformation("Sending PING");
                 client.SendIrcMessage("PING irc.twitch.tv");
                 Thread.Sleep(TimeSpan.FromMinutes(5));
-                Console.WriteLine("Sent PING");
+                logger.LogInformation("Sent PING");
             }
         }
     }
