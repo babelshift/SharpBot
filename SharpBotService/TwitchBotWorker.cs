@@ -36,6 +36,33 @@ namespace SharpBotService
             {
                 _ircClient.Connect();
                 _pinger.Start();
+
+                // Listen for commands and process them forever
+                while (!stoppingToken.IsCancellationRequested)
+                {
+                    try
+                    {
+                        var message = _ircClient.ReadMessage();
+
+                        _logger.LogInformation($"Received message: {message}");
+
+                        if (message.Contains("PRIVMSG"))
+                        {
+                            var parsedMessage = ParseMessage(message);
+                            var response = await _azureFunctionClient.ProcessCommandAsync(parsedMessage);
+                            _ircClient.SendChatMessage(response);
+                        }
+                        else if (message.StartsWith("PING"))
+                        {
+                            _ircClient.SendIrcMessage("PONG :tmi.twitch.tv");
+                            _logger.LogInformation("Sent PONG");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "The following exception occurred as a catch-all during command processing.");
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -44,36 +71,6 @@ namespace SharpBotService
             finally
             {
                 _ircClient.Disconnect();
-            }
-
-            // Listen for commands and process them forever
-            while (!stoppingToken.IsCancellationRequested)
-            {
-                try
-                {
-                    var message = _ircClient.ReadMessage();
-
-                    if (message.Contains("PRIVMSG"))
-                    {
-                        var parsedMessage = ParseMessage(message);
-                        var response = await _azureFunctionClient.ProcessCommandAsync(parsedMessage);
-                        _ircClient.SendChatMessage(response);
-                    }
-                    else if (message.StartsWith("PING"))
-                    {
-                        _logger.LogInformation("Received PING");
-                        _ircClient.SendIrcMessage("PONG :tmi.twitch.tv");
-                        _logger.LogInformation("Sent PONG");
-                    }
-                    else
-                    {
-                        _logger.LogInformation($"Received message: {message}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "The following exception occurred as a catch-all during command processing.");
-                }
             }
         }
 
