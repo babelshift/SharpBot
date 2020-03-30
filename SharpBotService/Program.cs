@@ -15,6 +15,7 @@ namespace SharpBotService
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .UseSystemd()
                 .ConfigureServices((hostContext, services) =>
                 {
                     var commandProcessorSettings = new CommandProcessorSettings()
