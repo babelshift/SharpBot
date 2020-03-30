@@ -44,6 +44,8 @@ namespace SharpBotService
                     {
                         var message = _ircClient.ReadMessage();
 
+                        _logger.LogInformation($"Received message: {message}");
+
                         if (message.Contains("PRIVMSG"))
                         {
                             var parsedMessage = ParseMessage(message);
@@ -52,13 +54,8 @@ namespace SharpBotService
                         }
                         else if (message.StartsWith("PING"))
                         {
-                            _logger.LogInformation("Received PING");
                             _ircClient.SendIrcMessage("PONG :tmi.twitch.tv");
                             _logger.LogInformation("Sent PONG");
-                        }
-                        else
-                        {
-                            _logger.LogInformation($"Received message: {message}");
                         }
                     }
                     catch (Exception ex)
