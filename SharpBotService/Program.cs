@@ -30,13 +30,14 @@ namespace SharpBotService
 
                     services.AddSingleton<IIrcClient>(x =>
                     {
-                        return new IrcClient(
-                            hostContext.Configuration["Secrets:TwitchIrcUrl"],
-                            int.Parse(hostContext.Configuration["Secrets:TwitchIrcPort"]),
-                            hostContext.Configuration["Secrets:BotUsername"],
-                            hostContext.Configuration["Secrets:TwitchOAuthToken"],
-                            hostContext.Configuration["Secrets:ChannelName"],
-                            x.GetService<ILogger<IrcClient>>());
+                        var ircUrl = hostContext.Configuration["Secrets:TwitchIrcUrl"];
+                        var port = int.Parse(hostContext.Configuration["Secrets:TwitchIrcPort"]);
+                        var botUsername = hostContext.Configuration["Secrets:BotUsername"];
+                        var twitchOAuthToken = hostContext.Configuration["Secrets:TwitchOAuthToken"];
+                        var channelName = hostContext.Configuration["Secrets:ChannelName"];
+                        var logger = x.GetService<ILogger<IrcClient>>();
+
+                        return new IrcClient(ircUrl, port, botUsername, twitchOAuthToken, channelName, logger);
                     });
                     services.AddSingleton<IPinger>(x =>
                     {
