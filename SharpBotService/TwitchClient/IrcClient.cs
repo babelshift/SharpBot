@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace SharpBotService.TwitchClient
 {
@@ -29,19 +30,19 @@ namespace SharpBotService.TwitchClient
             this.password = password;
             this.userName = userName;
             this.channel = channel;
+            tcpClient = new TcpClient();
         }
 
-        public void Connect()
+        public async Task ConnectAsync()
         {
-            tcpClient = new TcpClient(hostname, port);
+            await tcpClient.ConnectAsync(hostname, port);
             inputStream = new StreamReader(tcpClient.GetStream());
             outputStream = new StreamWriter(tcpClient.GetStream());
-
-            outputStream.WriteLine($"PASS {password}");
-            outputStream.WriteLine($"NICK {userName}");
-            outputStream.WriteLine($"USER {userName} 8 * :{userName}");
-            outputStream.WriteLine($"JOIN #{channel}");
-            outputStream.Flush();
+            await outputStream.WriteLineAsync($"PASS {password}");
+            await outputStream.WriteLineAsync($"NICK {userName}");
+            await outputStream.WriteLineAsync($"USER {userName} 8 * :{userName}");
+            await outputStream.WriteLineAsync($"JOIN #{channel}");
+            await outputStream.FlushAsync();
 
             logger.LogInformation("Connected to chat server");
         }
@@ -53,20 +54,32 @@ namespace SharpBotService.TwitchClient
             outputStream.Close();
         }
 
-        public void SendIrcMessage(string message)
+        public async Task ReconnectAsync()
         {
-            outputStream.WriteLine(message);
-            outputStream.Flush();
+            Disconnect();
+            await ConnectAsync();
         }
 
-        public string ReadMessage()
+        public async Task SendIrcMessageAsync(string message)
         {
-            return inputStream.ReadLine();
+            if(!tcpClient.Connected)
+            {
+                logger.LogWarning($"Can't send message: '{message}' because client is not connected.");
+                return;
+            }
+
+            await outputStream.WriteLineAsync(message);
+            await outputStream.FlushAsync();
         }
 
-        public void SendChatMessage(string message)
+        public async Task<string> ReadMessageAsync()
         {
-            SendIrcMessage($":{userName}!{userName}@{userName}.tmi.twitch.tv PRIVMSG #{channel} :{message}");
+            return await inputStream.ReadLineAsync();
+        }
+
+        public async Task SendChatMessageAsync(string message)
+        {
+            await SendIrcMessageAsync($":{userName}!{userName}@{userName}.tmi.twitch.tv PRIVMSG #{channel} :{message}");
         }
 
         public void Dispose()
@@ -82,9 +95,7 @@ namespace SharpBotService.TwitchClient
 
             if (disposing)
             {
-                tcpClient.Close();
-                inputStream.Close();
-                outputStream.Close();
+                Disconnect();
             }
 
             disposed = true;
