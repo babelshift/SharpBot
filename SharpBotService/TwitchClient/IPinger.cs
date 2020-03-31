@@ -1,7 +1,9 @@
-﻿namespace SharpBotService.TwitchClient
+﻿using System.Threading;
+
+namespace SharpBotService.TwitchClient
 {
     public interface IPinger
     {
-        void Start();
+        void Start(CancellationToken ct);
     }
 }

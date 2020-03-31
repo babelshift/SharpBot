@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace SharpBotService.TwitchClient
 {
@@ -14,24 +15,31 @@ namespace SharpBotService.TwitchClient
         {
             this.logger = logger;
             this.client = client;
-            sender = new Thread(new ThreadStart(Run));
+            sender = new Thread(new ParameterizedThreadStart(Run));
         }
 
-        public void Start()
+        public void Start(CancellationToken ct)
         {
             sender.IsBackground = true;
-            sender.Start();
-            logger.LogInformation("Started pinger process");
+            sender.Start(ct);
         }
 
-        private void Run()
+        private void Run(object ct)
         {
-            while (true)
+            try
             {
-                logger.LogInformation("Sending PING");
-                client.SendIrcMessage("PING irc.twitch.tv");
-                Thread.Sleep(TimeSpan.FromMinutes(5));
-                logger.LogInformation("Sent PING");
+                CancellationToken t = (CancellationToken)ct;
+                while (!t.IsCancellationRequested)
+                {
+                    logger.LogInformation("Sending PING");
+                    client.SendIrcMessageAsync("PING irc.twitch.tv");
+                    logger.LogInformation("Sent PING");
+                    Task.Delay(TimeSpan.FromMinutes(5), t).Wait();
+                }
+            }
+            catch (TaskCanceledException ex)
+            {
+                logger.LogWarning(ex, "Ending thread because task was cancelled.");
             }
         }
     }

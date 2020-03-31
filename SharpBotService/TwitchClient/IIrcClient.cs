@@ -1,11 +1,14 @@
-﻿namespace SharpBotService.TwitchClient
+﻿using System.Threading.Tasks;
+
+namespace SharpBotService.TwitchClient
 {
     public interface IIrcClient
     {
-        void Connect();
+        Task ConnectAsync();
         void Disconnect();
-        void SendIrcMessage(string message);
-        string ReadMessage();
-        void SendChatMessage(string message);
+        Task ReconnectAsync();
+        Task<string> ReadMessageAsync();
+        Task SendIrcMessageAsync(string message);
+        Task SendChatMessageAsync(string message);
     }
 }
