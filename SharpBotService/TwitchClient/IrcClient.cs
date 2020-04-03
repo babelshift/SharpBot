@@ -30,12 +30,11 @@ namespace SharpBotService.TwitchClient
             this.password = password;
             this.userName = userName;
             this.channel = channel;
-            tcpClient = new TcpClient();
         }
 
         public async Task ConnectAsync()
         {
-            await tcpClient.ConnectAsync(hostname, port);
+            tcpClient = new TcpClient(hostname, port);
             inputStream = new StreamReader(tcpClient.GetStream());
             outputStream = new StreamWriter(tcpClient.GetStream());
             await outputStream.WriteLineAsync($"PASS {password}");
