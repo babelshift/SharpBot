@@ -32,7 +32,7 @@ namespace SharpBotService.TwitchClient
                 while (!t.IsCancellationRequested)
                 {
                     logger.LogInformation("Sending PING");
-                    client.SendIrcMessageAsync("PING irc.twitch.tv");
+                    client.SendIrcMessageAsync("PING :tmi.twitch.tv");
                     logger.LogInformation("Sent PING");
                     Task.Delay(TimeSpan.FromMinutes(5), t).Wait();
                 }

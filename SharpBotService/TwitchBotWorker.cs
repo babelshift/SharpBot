@@ -79,10 +79,11 @@ namespace SharpBotService
                 try
                 {
                     await _ircClient.ReconnectAsync();
+                    break;
                 }
                 catch (SocketException se)
                 {
-                    _logger.LogError(se, "The following socket exception occurred while attetmping a reconnect.");
+                    _logger.LogError(se, "The following socket exception occurred while attempting a reconnect.");
                     await Task.Delay(reconnectWaitTime, stoppingToken);
                 }
             }
